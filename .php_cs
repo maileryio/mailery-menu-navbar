@@ -2,9 +2,9 @@
 
 $date = date('Y');
 $header = <<<EOF
-_____
-@link      https://github.com/maileryio/_____
-@package   _____
+Menu Navbar Module for Mailery Platform
+@link      https://github.com/maileryio/mailery-menu-navbar
+@package   Mailery\Menu\Navbar
 @license   BSD-3-Clause
 @copyright Copyright (c) {$date}, Mailery (https://mailery.io/)
 EOF;
