@@ -13,18 +13,11 @@ declare(strict_types=1);
 namespace Mailery\Menu\Navbar;
 
 use Mailery\Menu\BaseMenu;
+use Mailery\Menu\MenuItem;
 use Mailery\Icon\Icon;
 
 class NavbarMenu extends BaseMenu implements NavbarMenuInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getKey(): string
-    {
-        return 'navbar-menu';
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -42,9 +35,9 @@ class NavbarMenu extends BaseMenu implements NavbarMenuInterface
     }
 
     /**
-     * @param array $items
+     * @param MenuItem[] $items
      * @param int $level
-     * @return array
+     * @return MenuItem[]
      */
     private function decorateItems(array $items, int $level = 0): array
     {
@@ -53,27 +46,37 @@ class NavbarMenu extends BaseMenu implements NavbarMenuInterface
             return 'navbar-menu-item-' . ++$id;
         };
 
-        foreach ($items as &$item) {
-            $label = $level > 0 ? '{label}' : '<span class="menu-title">{label}</span>';
+        $resultItems = [];
 
-            if (isset($item['icon'])) {
-                $label = Icon::widget()->options(['class' => 'menu-icon'])->name($item['icon']) . ' ' . $label;
+        foreach ($items as $key => $item) {
+            /* @var $item MenuItem */
+            $resultItem = $item->toArray();
+
+            $label = $level > 0 ? '{label}' : '<span class="menu-title">{label}</span>';
+            if (!empty($resultItem['icon'])) {
+                $label = Icon::widget()->options(['class' => 'menu-icon'])->name($resultItem['icon']) . ' ' . $label;
             }
 
-            if (isset($item['items'])) {
+            if (!empty($resultItem['childItems'])) {
                 $collapseKey = $fnCollapseKey();
 
-                $item['url'] = '#' . $collapseKey;
-                $item['template'] = '<a class="nav-link collapsed" data-toggle="collapse" href="{url}">' . $label . Icon::widget()->options(['class' => 'menu-arrow'])->name('arrow-down') . '</a>';
-                $item['submenuTemplate'] = "\n<div class=\"collapse\" id=\"{$collapseKey}\">\n<ul class=\"nav flex-column sub-menu\">\n{items}\n</ul>\n</div>\n";
-
-                $item['items'] = $this->decorateItems($item['items'], $level + 1);
+                $resultItem = array_merge(
+                    $resultItem,
+                    [
+                        'url' => '#' . $collapseKey,
+                        'template' => '<a class="nav-link collapsed" data-toggle="collapse" href="{url}">' . $label . Icon::widget()->options(['class' => 'menu-arrow'])->name('arrow-down') . '</a>',
+                        'submenuTemplate' => "\n<div class=\"collapse\" id=\"{$collapseKey}\">\n<ul class=\"nav flex-column sub-menu\">\n{items}\n</ul>\n</div>\n",
+                        'items' => $this->decorateItems($resultItem['childItems'], $level + 1),
+                    ]
+                );
             } else {
-                $item['template'] = '<a class="nav-link" href="{url}">' . $label . '</a>';
+                $resultItem['template'] = '<a class="nav-link" href="{url}">' . $label . '</a>';
             }
+
+            $resultItems[$key] = $resultItem;
         }
 
-        return $items;
+        return $resultItems;
     }
 
 }
