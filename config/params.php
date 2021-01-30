@@ -11,9 +11,7 @@ declare(strict_types=1);
  */
 
 return [
-    'menu' => [
-        'navbar' => [
-            'items' => [],
-        ],
+    'maileryio/mailery-menu-navbar' => [
+        'items' => [],
     ],
 ];
