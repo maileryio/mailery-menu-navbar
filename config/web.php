@@ -11,15 +11,19 @@ declare(strict_types=1);
  */
 
 use Mailery\Menu\Menu;
-use Mailery\Menu\Navbar\NavbarMenuInterface;
+use Mailery\Menu\Navbar\NavbarMenu;
 use Mailery\Menu\Decorator\Normalizer;
 use Mailery\Menu\Decorator\Instantiator;
+use Mailery\Menu\Decorator\Sorter;
 use Yiisoft\Injector\Injector;
 
 return [
-    NavbarMenuInterface::class => static function (Injector $injector) use($params) {
-        return (new Menu($params['maileryio/mailery-menu-navbar']['items']))
-            ->withNormalizer(new Normalizer($injector))
-            ->withInstantiator(new Instantiator($injector));
+    NavbarMenu::class => static function (Injector $injector) use($params) {
+        return new NavbarMenu(
+            (new Menu($params['maileryio/mailery-menu-navbar']['items']))
+                ->withNormalizer(new Normalizer($injector))
+                ->withInstantiator(new Instantiator($injector))
+                ->withSorter(new Sorter())
+        );
     },
 ];
